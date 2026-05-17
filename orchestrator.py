@@ -12,6 +12,7 @@ The orchestrator then re-runs the pipeline from that agent onwards, up to
 """
 
 import logging
+from collections.abc import Callable
 
 import config
 from agents import (
@@ -25,6 +26,9 @@ from agents.llm import BaseLLM, get_llm
 from models import AgentRole, WorkflowState
 
 logger = logging.getLogger(__name__)
+
+
+ProgressCallback = Callable[[AgentRole, WorkflowState], None]
 
 
 class Orchestrator:
@@ -52,14 +56,22 @@ class Orchestrator:
     # Public API
     # ------------------------------------------------------------------
 
-    def run(self, requirement: str) -> WorkflowState:
+    def run(
+        self,
+        requirement: str,
+        progress_callback: ProgressCallback | None = None,
+    ) -> WorkflowState:
         """
         Execute the full pipeline for *requirement*.
 
         Returns the final :class:`WorkflowState` after all iterations.
         """
         state = WorkflowState(original_requirement=requirement)
-        state = self._run_from(state, start_role=AgentRole.BUSINESS_ANALYST)
+        state = self._run_from(
+            state,
+            start_role=AgentRole.BUSINESS_ANALYST,
+            progress_callback=progress_callback,
+        )
         return state
 
     # ------------------------------------------------------------------
@@ -67,7 +79,10 @@ class Orchestrator:
     # ------------------------------------------------------------------
 
     def _run_from(
-        self, state: WorkflowState, start_role: AgentRole
+        self,
+        state: WorkflowState,
+        start_role: AgentRole,
+        progress_callback: ProgressCallback | None = None,
     ) -> WorkflowState:
         """Run the pipeline starting at *start_role* and handle iterations."""
         start_idx = self._PIPELINE_ORDER.index(start_role)
@@ -76,6 +91,8 @@ class Orchestrator:
             agent = self._agents[role]
             logger.info("[%s] Running agent…", role.value)
             state = agent.run(state)
+            if progress_callback is not None:
+                progress_callback(role, state)
             logger.info("[%s] Done.", role.value)
 
         # After the tester has run, check whether an iteration is requested.
@@ -96,6 +113,10 @@ class Orchestrator:
             )
 
             restart_role = suggested if suggested else AgentRole.ARCHITECT
-            state = self._run_from(state, start_role=restart_role)
+            state = self._run_from(
+                state,
+                start_role=restart_role,
+                progress_callback=progress_callback,
+            )
 
         return state

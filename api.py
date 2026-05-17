@@ -145,7 +145,15 @@ def stream_workflow(
                 }
             )
         except Exception as exc:  # pragma: no cover - defensive API fallback
-            _safe_put({"event": "error", "data": {"detail": str(exc)}})
+            _safe_put(
+                {
+                    "event": "error",
+                    "data": {
+                        "type": exc.__class__.__name__,
+                        "detail": str(exc),
+                    },
+                }
+            )
         finally:
             _safe_put(None)
             worker_done_event.set()

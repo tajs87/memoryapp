@@ -16,10 +16,14 @@ If you're just starting, a Docker container on Cloud Run, Render, or Railway is 
 You can deploy these agents to Azure Container Apps with a container image:
 
 ```bash
+# Requires a Dockerfile in the repository root.
 az login
 az group create --name memoryapp-rg --location eastus
 az acr create --resource-group memoryapp-rg --name memoryappacr --sku Basic
+az acr update --name memoryappacr --admin-enabled true
 az acr build --registry memoryappacr --image memoryapp:latest .
+ACR_USER=$(az acr credential show --name memoryappacr --query username -o tsv)
+ACR_PASS=$(az acr credential show --name memoryappacr --query "passwords[0].value" -o tsv)
 az containerapp env create --name memoryapp-env --resource-group memoryapp-rg --location eastus
 az containerapp create \
   --name memoryapp \
@@ -28,7 +32,9 @@ az containerapp create \
   --image memoryappacr.azurecr.io/memoryapp:latest \
   --target-port 8000 \
   --ingress external \
-  --registry-server memoryappacr.azurecr.io
+  --registry-server memoryappacr.azurecr.io \
+  --registry-username "$ACR_USER" \
+  --registry-password "$ACR_PASS"
 ```
 
 Get the app URL:

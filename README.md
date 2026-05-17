@@ -20,7 +20,7 @@ You can deploy these agents to Azure Container Apps with a container image:
 az login
 az group create --name memoryapp-rg --location eastus
 # ACR names are globally unique in Azure.
-ACR_NAME="memoryappacr$(date +%s)"
+ACR_NAME="memoryappacr$(uuidgen | tr -d '-' | head -c 10)"
 az acr create --resource-group memoryapp-rg --name "$ACR_NAME" --sku Basic
 az acr build --registry "$ACR_NAME" --image memoryapp:latest .
 az containerapp env create --name memoryapp-env --resource-group memoryapp-rg --location eastus
@@ -52,7 +52,7 @@ az containerapp show --name memoryapp --resource-group memoryapp-rg --query prop
 Expose one orchestrator endpoint (for example `POST /run`) that coordinates all specialist agents internally. At minimum, that endpoint should:
 
 - accept the user goal
-- invoke planner/builder/deployer agents in sequence (or graph)
+- invoke specialist agents in sequence (or graph)
 - return progress and final output
 
 Then call:

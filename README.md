@@ -19,22 +19,24 @@ You can deploy these agents to Azure Container Apps with a container image:
 # Requires a Dockerfile in the repository root.
 az login
 az group create --name memoryapp-rg --location eastus
-az acr create --resource-group memoryapp-rg --name memoryappacr --sku Basic
-az acr build --registry memoryappacr --image memoryapp:latest .
+# ACR names are globally unique in Azure.
+ACR_NAME="memoryappacr$RANDOM"
+az acr create --resource-group memoryapp-rg --name "$ACR_NAME" --sku Basic
+az acr build --registry "$ACR_NAME" --image memoryapp:latest .
 az containerapp env create --name memoryapp-env --resource-group memoryapp-rg --location eastus
 az identity create --name memoryapp-mi --resource-group memoryapp-rg
 IDENTITY_ID=$(az identity show --name memoryapp-mi --resource-group memoryapp-rg --query id -o tsv)
 IDENTITY_PRINCIPAL_ID=$(az identity show --name memoryapp-mi --resource-group memoryapp-rg --query principalId -o tsv)
-ACR_ID=$(az acr show --name memoryappacr --resource-group memoryapp-rg --query id -o tsv)
+ACR_ID=$(az acr show --name "$ACR_NAME" --resource-group memoryapp-rg --query id -o tsv)
 az role assignment create --assignee-object-id "$IDENTITY_PRINCIPAL_ID" --assignee-principal-type ServicePrincipal --scope "$ACR_ID" --role AcrPull
 az containerapp create \
   --name memoryapp \
   --resource-group memoryapp-rg \
   --environment memoryapp-env \
-  --image memoryappacr.azurecr.io/memoryapp:latest \
+  --image "$ACR_NAME.azurecr.io/memoryapp:latest" \
   --target-port 8000 \
   --ingress external \
-  --registry-server memoryappacr.azurecr.io \
+  --registry-server "$ACR_NAME.azurecr.io" \
   --user-assigned "$IDENTITY_ID" \
   --registry-identity "$IDENTITY_ID"
 ```
@@ -47,7 +49,13 @@ az containerapp show --name memoryapp --resource-group memoryapp-rg --query prop
 
 ## Interact with deployed agents
 
-Expose one orchestrator endpoint (for example `POST /run`) that coordinates all specialist agents internally. Then call:
+Expose one orchestrator endpoint (for example `POST /run`) that coordinates all specialist agents internally. At minimum, that endpoint should:
+
+- accept the user goal,
+- invoke planner/builder/deployer agents in sequence (or graph),
+- return progress and final output.
+
+Then call:
 
 ```bash
 curl -X POST "https://<your-container-app-fqdn>/run" \

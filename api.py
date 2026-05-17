@@ -3,7 +3,7 @@
 import json
 import queue
 import threading
-from typing import Any, Dict, List
+from typing import Any, Dict, List, Optional
 
 from fastapi import FastAPI, HTTPException, Query
 from fastapi.responses import HTMLResponse, StreamingResponse
@@ -105,10 +105,7 @@ def run_workflow(payload: WorkflowRunRequest) -> WorkflowRunResponse:
 def stream_workflow(
     requirement: str = Query(min_length=1, max_length=2000),
 ) -> StreamingResponse:
-    if not requirement.strip():
-        raise HTTPException(status_code=400, detail="requirement must not be empty")
-
-    events: queue.Queue[dict[str, Any] | None] = queue.Queue()
+    events: queue.Queue[Optional[dict[str, Any]]] = queue.Queue()
 
     def _worker() -> None:
         orchestrator = Orchestrator()
@@ -203,7 +200,8 @@ def workflow_ui() -> str:
         source.close();
       }
 
-      source = new EventSource(`/workflow/stream?requirement=${encodeURIComponent(requirement)}`);
+      const params = new URLSearchParams({ requirement });
+      source = new EventSource(`/workflow/stream?${params.toString()}`);
       append(`Starting workflow for: ${requirement}`);
 
       source.addEventListener('progress', (evt) => {

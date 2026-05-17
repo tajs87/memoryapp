@@ -90,12 +90,26 @@ memoryapp/
 └── requirements.txt
 ```
 
-## Deploy to Azure Container Apps
+## How to deploy
 
-1. Create a container image:
+### Option A: local container deployment (fastest)
+
+```bash
+docker build -t memoryapp:latest .
+docker run --rm -p 8000:8000 -e MAX_ITERATIONS=3 memoryapp:latest
+```
+
+Then open:
+- `http://localhost:8000/health`
+- `http://localhost:8000/ui`
+
+### Option B: Azure Container Apps
+
+1. Create and push the image:
 
 ```bash
 docker build -t <ACR_NAME>.azurecr.io/memoryapp:latest .
+az acr login --name <ACR_NAME>
 docker push <ACR_NAME>.azurecr.io/memoryapp:latest
 ```
 
@@ -115,9 +129,10 @@ az containerapp create \
   --env-vars MAX_ITERATIONS=3
 ```
 
-3. Interact with deployed agents:
+3. Verify deployment:
 
 ```bash
+curl https://<APP_URL>/health
 curl https://<APP_URL>/agents
 curl -X POST https://<APP_URL>/workflow/run \
   -H "Content-Type: application/json" \

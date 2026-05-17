@@ -2,6 +2,7 @@
 
 import json
 import asyncio
+import logging
 import queue
 import threading
 from typing import Any, Dict, List, Optional
@@ -17,9 +18,11 @@ from models import AgentRole, MessageType, WorkflowState
 from orchestrator import Orchestrator
 
 app = FastAPI(title="memoryapp API", version="1.0.0")
+logger = logging.getLogger(__name__)
 MAX_EVENT_QUEUE_SIZE = 100
 STREAM_POLL_INTERVAL_SECONDS = 0.05
 WORKER_CLEANUP_TIMEOUT_SECONDS = 1.0
+MAX_REQUIREMENT_LENGTH = 2000
 
 _AGENT_DESCRIPTIONS: Dict[AgentRole, str] = {
     AgentRole.BUSINESS_ANALYST: "Clarifies requirements and assumptions.",
@@ -35,7 +38,7 @@ class AgentInfo(BaseModel):
 
 
 class WorkflowRunRequest(BaseModel):
-    requirement: str = Field(min_length=1, max_length=2000)
+    requirement: str = Field(min_length=1, max_length=MAX_REQUIREMENT_LENGTH)
 
 
 class ProgressEvent(BaseModel):
@@ -108,7 +111,7 @@ def run_workflow(payload: WorkflowRunRequest) -> WorkflowRunResponse:
 @app.get("/workflow/stream")
 def stream_workflow(
     request: Request,
-    requirement: str = Query(min_length=1, max_length=2000),
+    requirement: str = Query(min_length=1, max_length=MAX_REQUIREMENT_LENGTH),
 ) -> StreamingResponse:
     events: queue.Queue[Optional[Dict[str, Any]]] = queue.Queue(
         maxsize=MAX_EVENT_QUEUE_SIZE
@@ -120,7 +123,7 @@ def stream_workflow(
         try:
             events.put_nowait(item)
         except queue.Full:
-            pass
+            logger.warning("Dropping workflow stream event because queue is full.")
 
     def _worker() -> None:
         orchestrator = Orchestrator()
@@ -183,6 +186,8 @@ def stream_workflow(
         finally:
             stop_event.set()
             thread.join(timeout=WORKER_CLEANUP_TIMEOUT_SECONDS)
+            if thread.is_alive():
+                logger.warning("Workflow stream worker thread did not exit in time.")
 
     return StreamingResponse(
         _event_stream(),
@@ -222,6 +227,7 @@ def workflow_ui() -> str:
     const requirementInput = document.getElementById('requirement');
     const runBtn = document.getElementById('runBtn');
     let source = null;
+    const MAX_REQUIREMENT_LENGTH = 2000;
 
     function append(line) {
       events.textContent += line + "\\n";
@@ -233,8 +239,8 @@ def workflow_ui() -> str:
         append('Requirement is required.');
         return;
       }
-      if (requirement.length > 2000) {
-        append('Requirement must be 2000 characters or less.');
+      if (requirement.length > MAX_REQUIREMENT_LENGTH) {
+        append(`Requirement must be ${MAX_REQUIREMENT_LENGTH} characters or less.`);
         return;
       }
       events.textContent = '';

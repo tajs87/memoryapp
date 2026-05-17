@@ -74,6 +74,12 @@ class TestApi:
         assert len(progress_payloads) >= MIN_CORE_AGENT_PROGRESS_EVENTS
         assert progress_payloads[0]["agent"] == "business_analyst"
         assert "iteration" in progress_payloads[0]
+        assert {
+            "business_analyst",
+            "architect",
+            "builder",
+            "tester",
+        }.issubset({event["agent"] for event in progress_payloads})
         assert completed_payload is not None
         assert completed_payload["build_result"] is not None
 

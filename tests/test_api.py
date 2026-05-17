@@ -11,6 +11,7 @@ from fastapi.testclient import TestClient
 from api import app
 
 client = TestClient(app)
+# One progress event is expected from each core agent in the first pipeline pass.
 MIN_CORE_AGENT_PROGRESS_EVENTS = 4
 
 

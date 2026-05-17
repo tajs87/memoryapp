@@ -19,6 +19,7 @@ from orchestrator import Orchestrator
 app = FastAPI(title="memoryapp API", version="1.0.0")
 MAX_EVENT_QUEUE_SIZE = 100
 STREAM_POLL_INTERVAL_SECONDS = 0.05
+WORKER_CLEANUP_TIMEOUT_SECONDS = 1.0
 
 _AGENT_DESCRIPTIONS: Dict[AgentRole, str] = {
     AgentRole.BUSINESS_ANALYST: "Clarifies requirements and assumptions.",
@@ -109,13 +110,13 @@ def stream_workflow(
     request: Request,
     requirement: str = Query(min_length=1, max_length=2000),
 ) -> StreamingResponse:
-    events: queue.Queue[Optional[dict[str, Any]]] = queue.Queue(
+    events: queue.Queue[Optional[Dict[str, Any]]] = queue.Queue(
         maxsize=MAX_EVENT_QUEUE_SIZE
     )
     stop_event = threading.Event()
     worker_done_event = threading.Event()
 
-    def _safe_put(item: Optional[dict[str, Any]]) -> None:
+    def _safe_put(item: Optional[Dict[str, Any]]) -> None:
         try:
             events.put_nowait(item)
         except queue.Full:
@@ -173,7 +174,7 @@ def stream_workflow(
                 )
         finally:
             stop_event.set()
-            thread.join(timeout=0.2)
+            thread.join(timeout=WORKER_CLEANUP_TIMEOUT_SECONDS)
 
     return StreamingResponse(
         _event_stream(),

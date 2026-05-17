@@ -47,6 +47,10 @@ uvicorn api:app --host 0.0.0.0 --port 8000
   - `state`: final workflow state
   - `progress`: ordered per-agent progress events (agent, iteration, message type,
     recipient, message count)
+- `GET /workflow/stream?requirement=...` → stream live per-agent progress events
+  (SSE) and a final `completed` event with final state.
+- `GET /ui` → browser console to start a workflow, watch live agent progress, and
+  inspect final state.
 
 ## Configuration
 

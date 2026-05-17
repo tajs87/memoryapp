@@ -44,3 +44,17 @@ class TestApi:
         body = response.json()
         assert body["requirement_spec"] is not None
         assert len(body["history"]) == 1
+
+    def test_stream_workflow_returns_events(self) -> None:
+        response = client.get(
+            "/workflow/stream",
+            params={"requirement": "Build a memory management app"},
+        )
+        assert response.status_code == 200
+        assert "event: progress" in response.text
+        assert "event: completed" in response.text
+
+    def test_ui_page(self) -> None:
+        response = client.get("/ui")
+        assert response.status_code == 200
+        assert "Live Agent Progress" in response.text

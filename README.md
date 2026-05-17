@@ -20,7 +20,7 @@ You can deploy these agents to Azure Container Apps with a container image:
 az login
 az group create --name memoryapp-rg --location eastus
 # ACR names are globally unique in Azure.
-ACR_NAME="memoryappacr$(uuidgen | tr -d '-' | head -c 10)"
+ACR_NAME="memoryappacr$(date +%s)$RANDOM"
 az acr create --resource-group memoryapp-rg --name "$ACR_NAME" --sku Basic
 az acr build --registry "$ACR_NAME" --image memoryapp:latest .
 az containerapp env create --name memoryapp-env --resource-group memoryapp-rg --location eastus

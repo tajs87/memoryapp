@@ -3,11 +3,11 @@
 import json
 import queue
 import threading
-from typing import Dict, List
+from typing import Any, Dict, List
 
-from fastapi import FastAPI, HTTPException
+from fastapi import FastAPI, HTTPException, Query
 from fastapi.responses import HTMLResponse, StreamingResponse
-from pydantic import BaseModel
+from pydantic import BaseModel, Field
 
 from agents import ArchitectAgent, BuilderAgent, BusinessAnalystAgent, TesterAgent
 from agents.base_agent import BaseAgent
@@ -31,7 +31,7 @@ class AgentInfo(BaseModel):
 
 
 class WorkflowRunRequest(BaseModel):
-    requirement: str
+    requirement: str = Field(min_length=1, max_length=2000)
 
 
 class ProgressEvent(BaseModel):
@@ -102,11 +102,13 @@ def run_workflow(payload: WorkflowRunRequest) -> WorkflowRunResponse:
 
 
 @app.get("/workflow/stream")
-def stream_workflow(requirement: str) -> StreamingResponse:
+def stream_workflow(
+    requirement: str = Query(min_length=1, max_length=2000),
+) -> StreamingResponse:
     if not requirement.strip():
         raise HTTPException(status_code=400, detail="requirement must not be empty")
 
-    events: queue.Queue[dict | None] = queue.Queue()
+    events: queue.Queue[dict[str, Any] | None] = queue.Queue()
 
     def _worker() -> None:
         orchestrator = Orchestrator()

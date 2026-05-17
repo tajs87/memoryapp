@@ -2,6 +2,7 @@
 
 import sys
 import os
+import json
 
 sys.path.insert(0, os.path.join(os.path.dirname(__file__), ".."))
 
@@ -51,8 +52,35 @@ class TestApi:
             params={"requirement": "Build a memory management app"},
         )
         assert response.status_code == 200
-        assert "event: progress" in response.text
-        assert "event: completed" in response.text
+        chunks = [chunk for chunk in response.text.split("\n\n") if chunk.strip()]
+        progress_payloads = []
+        completed_payload = None
+
+        for chunk in chunks:
+            event_name = None
+            data_line = None
+            for line in chunk.splitlines():
+                if line.startswith("event: "):
+                    event_name = line.split("event: ", 1)[1]
+                if line.startswith("data: "):
+                    data_line = line.split("data: ", 1)[1]
+            if event_name == "progress" and data_line:
+                progress_payloads.append(json.loads(data_line))
+            if event_name == "completed" and data_line:
+                completed_payload = json.loads(data_line)
+
+        assert len(progress_payloads) >= 4
+        assert progress_payloads[0]["agent"] == "business_analyst"
+        assert "iteration" in progress_payloads[0]
+        assert completed_payload is not None
+        assert completed_payload["build_result"] is not None
+
+    def test_stream_workflow_rejects_long_requirement(self) -> None:
+        response = client.get(
+            "/workflow/stream",
+            params={"requirement": "x" * 2001},
+        )
+        assert response.status_code == 422
 
     def test_ui_page(self) -> None:
         response = client.get("/ui")

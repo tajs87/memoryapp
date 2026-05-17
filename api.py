@@ -113,6 +113,7 @@ def stream_workflow(
         maxsize=MAX_EVENT_QUEUE_SIZE
     )
     stop_event = threading.Event()
+    worker_done_event = threading.Event()
 
     def _safe_put(item: Optional[dict[str, Any]]) -> None:
         try:
@@ -146,26 +147,33 @@ def stream_workflow(
             _safe_put({"event": "error", "data": {"detail": str(exc)}})
         finally:
             _safe_put(None)
+            worker_done_event.set()
 
     thread = threading.Thread(target=_worker)
     thread.start()
 
     async def _event_stream():
-        while True:
-            if await request.is_disconnected():
-                stop_event.set()
-                break
-            try:
-                item = events.get_nowait()
-            except queue.Empty:
-                await asyncio.sleep(STREAM_POLL_INTERVAL_SECONDS)
-                continue
-            if item is None:
-                break
-            yield (
-                f"event: {item['event']}\n"
-                f"data: {json.dumps(item['data'])}\n\n"
-            )
+        try:
+            while True:
+                if await request.is_disconnected():
+                    stop_event.set()
+                    break
+                try:
+                    item = events.get_nowait()
+                except queue.Empty:
+                    if worker_done_event.is_set():
+                        break
+                    await asyncio.sleep(STREAM_POLL_INTERVAL_SECONDS)
+                    continue
+                if item is None:
+                    break
+                yield (
+                    f"event: {item['event']}\n"
+                    f"data: {json.dumps(item['data'])}\n\n"
+                )
+        finally:
+            stop_event.set()
+            thread.join(timeout=0.2)
 
     return StreamingResponse(
         _event_stream(),

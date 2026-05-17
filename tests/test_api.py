@@ -11,6 +11,7 @@ from fastapi.testclient import TestClient
 from api import app
 
 client = TestClient(app)
+MIN_CORE_AGENT_PROGRESS_EVENTS = 4
 
 
 class TestApi:
@@ -69,8 +70,7 @@ class TestApi:
             if event_name == "completed" and data_line:
                 completed_payload = json.loads(data_line)
 
-        # At least one progress event per core agent in first pipeline pass.
-        assert len(progress_payloads) >= 4
+        assert len(progress_payloads) >= MIN_CORE_AGENT_PROGRESS_EVENTS
         assert progress_payloads[0]["agent"] == "business_analyst"
         assert "iteration" in progress_payloads[0]
         assert completed_payload is not None

@@ -8,7 +8,7 @@ from pydantic import BaseModel
 from agents import ArchitectAgent, BuilderAgent, BusinessAnalystAgent, TesterAgent
 from agents.base_agent import BaseAgent
 from agents.llm import get_llm
-from models import AgentRole, WorkflowState
+from models import AgentRole, MessageType, WorkflowState
 from orchestrator import Orchestrator
 
 app = FastAPI(title="memoryapp API", version="1.0.0")
@@ -34,7 +34,7 @@ class ProgressEvent(BaseModel):
     agent: AgentRole
     iteration: int
     message_count: int
-    message_type: str | None = None
+    message_type: MessageType | None = None
     recipient: AgentRole | None = None
 
 
@@ -75,13 +75,18 @@ def run_workflow(payload: WorkflowRunRequest) -> WorkflowRunResponse:
     progress: List[ProgressEvent] = []
 
     def _on_progress(role: AgentRole, state: WorkflowState) -> None:
-        latest = next((m for m in reversed(state.history) if m.sender == role), None)
+        latest = None
+        for idx in range(len(state.history) - 1, -1, -1):
+            message = state.history[idx]
+            if message.sender == role:
+                latest = message
+                break
         progress.append(
             ProgressEvent(
                 agent=role,
                 iteration=state.iteration_count,
                 message_count=len(state.history),
-                message_type=(latest.message_type.value if latest else None),
+                message_type=(latest.message_type if latest else None),
                 recipient=(latest.recipient if latest else None),
             )
         )

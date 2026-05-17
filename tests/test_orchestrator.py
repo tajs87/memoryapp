@@ -59,3 +59,15 @@ class TestOrchestrator:
         # Verify every agent uses the injected LLM (duck-type check).
         for agent in orc._agents.values():
             assert agent._llm is mock
+
+    def test_progress_callback_receives_agent_updates(self) -> None:
+        events: list[AgentRole] = []
+        orc = Orchestrator(llm=MockLLM())
+        orc.run(
+            "Build a memory management application",
+            progress_callback=lambda role, _state: events.append(role),
+        )
+        assert AgentRole.BUSINESS_ANALYST in events
+        assert AgentRole.ARCHITECT in events
+        assert AgentRole.BUILDER in events
+        assert AgentRole.TESTER in events

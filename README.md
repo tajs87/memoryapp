@@ -32,6 +32,26 @@ python main.py "Build a memory management app with note search"
 python main.py
 ```
 
+## API mode (interact with each agent + progress tracking)
+
+```bash
+# Run API locally
+uvicorn api:app --host 0.0.0.0 --port 8000
+```
+
+- `GET /agents` → list all available agents and responsibilities.
+- `POST /agents/{agent_role}/run` → run a single agent with a provided
+  `WorkflowState` payload (lets you interact with each agent directly).
+- `POST /workflow/run` → run the full multi-agent flow.  
+  Response contains:
+  - `state`: final workflow state
+  - `progress`: ordered per-agent progress events (agent, iteration, message type,
+    recipient, message count)
+- `GET /workflow/stream?requirement=...` → stream live per-agent progress events
+  (SSE) and a final `completed` event with final state.
+- `GET /ui` → browser console to start a workflow, watch live agent progress, and
+  inspect final state.
+
 ## Configuration
 
 All settings can be overridden via environment variables or a `.env` file:
@@ -65,8 +85,43 @@ memoryapp/
 │   └── test_orchestrator.py
 ├── orchestrator.py           # Multi-agent coordinator
 ├── main.py                   # CLI entry point
+├── api.py                    # FastAPI entry point (agent interaction + progress)
 ├── config.py                 # Configuration
 └── requirements.txt
+```
+
+## Deploy to Azure Container Apps
+
+1. Create a container image:
+
+```bash
+docker build -t <ACR_NAME>.azurecr.io/memoryapp:latest .
+docker push <ACR_NAME>.azurecr.io/memoryapp:latest
+```
+
+2. Deploy API to Azure Container Apps:
+
+```bash
+az containerapp create \
+  --name memoryapp-agents \
+  --resource-group <RESOURCE_GROUP> \
+  --environment <ACA_ENVIRONMENT> \
+  --image <ACR_NAME>.azurecr.io/memoryapp:latest \
+  --target-port 8000 \
+  --ingress external \
+  --registry-server <ACR_NAME>.azurecr.io \
+  --cpu 0.5 \
+  --memory 1Gi \
+  --env-vars MAX_ITERATIONS=3
+```
+
+3. Interact with deployed agents:
+
+```bash
+curl https://<APP_URL>/agents
+curl -X POST https://<APP_URL>/workflow/run \
+  -H "Content-Type: application/json" \
+  -d '{"requirement":"Build a memory management app with note search"}'
 ```
 
 ## Running tests

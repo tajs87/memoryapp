@@ -71,7 +71,7 @@ class TesterAgent(BaseAgent):
         build = state.build_result
         build_summary = (
             f"Build success: {build.success}\n"
-            f"Artefacts: {', '.join(build.artifacts)}\n"
+            f"Artifacts: {', '.join(build.artifacts)}\n"
             f"Deployment URL: {build.deployment_url or 'N/A'}\n"
             f"Logs:\n{build.logs}\n"
             f"Errors: {', '.join(build.errors) or 'None'}"

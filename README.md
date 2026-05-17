@@ -9,7 +9,7 @@ deployment, with automatic iteration when tests reveal issues.
 |---|-------|---------------|
 | 1 | **Business Analyst** | Clarifies requirements, lists assumptions, flags out-of-scope items, provides feedback |
 | 2 | **Architect** | Designs the system architecture with scalability and performance considerations |
-| 3 | **Builder** | Builds and deploys the application, produces artefacts and a deployment URL |
+| 3 | **Builder** | Builds and deploys the application, produces artifacts and a deployment URL |
 | 4 | **Tester** | Validates the build against requirements; if failures are found, triggers an iteration back to the appropriate agent |
 
 The **Orchestrator** coordinates all four agents.  When the Tester requests an

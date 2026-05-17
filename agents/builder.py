@@ -3,7 +3,7 @@
 Responsible for:
 - Translating the architecture specification into a concrete build plan.
 - Simulating (or orchestrating) the build and deployment process.
-- Reporting build artefacts, deployment URL and any errors.
+- Reporting build artifacts, deployment URL and any errors.
 """
 
 import textwrap
@@ -31,7 +31,7 @@ class BuilderAgent(BaseAgent):
         specification, describe in detail how you would build and deploy the
         described application. Your output must include:
         1. Whether the build succeeded (BUILD STATUS: SUCCESS or FAILURE).
-        2. A list of build artefacts produced.
+        2. A list of build artifacts produced.
         3. The deployment URL (or placeholder if not yet available).
         4. Relevant build/deploy log lines.
         5. Any errors encountered.

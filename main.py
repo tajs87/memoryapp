@@ -68,7 +68,7 @@ def _print_state(state) -> None:  # type: ignore[type-arg]
         status = "✅ SUCCESS" if build.success else "❌ FAILURE"
         print(f"  Status   : {status}")
         if build.artifacts:
-            print("\n  Artefacts:")
+            print("\n  Artifacts:")
             for a in build.artifacts:
                 print(f"    – {a}")
         if build.deployment_url:

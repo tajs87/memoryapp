@@ -69,6 +69,7 @@ class TestApi:
             if event_name == "completed" and data_line:
                 completed_payload = json.loads(data_line)
 
+        # At least one progress event per core agent in first pipeline pass.
         assert len(progress_payloads) >= 4
         assert progress_payloads[0]["agent"] == "business_analyst"
         assert "iteration" in progress_payloads[0]

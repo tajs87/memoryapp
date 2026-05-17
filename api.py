@@ -17,6 +17,8 @@ from models import AgentRole, MessageType, WorkflowState
 from orchestrator import Orchestrator
 
 app = FastAPI(title="memoryapp API", version="1.0.0")
+MAX_EVENT_QUEUE_SIZE = 100
+STREAM_POLL_INTERVAL_SECONDS = 0.05
 
 _AGENT_DESCRIPTIONS: Dict[AgentRole, str] = {
     AgentRole.BUSINESS_ANALYST: "Clarifies requirements and assumptions.",
@@ -107,7 +109,9 @@ def stream_workflow(
     request: Request,
     requirement: str = Query(min_length=1, max_length=2000),
 ) -> StreamingResponse:
-    events: queue.Queue[Optional[dict[str, Any]]] = queue.Queue(maxsize=100)
+    events: queue.Queue[Optional[dict[str, Any]]] = queue.Queue(
+        maxsize=MAX_EVENT_QUEUE_SIZE
+    )
     stop_event = threading.Event()
 
     def _safe_put(item: Optional[dict[str, Any]]) -> None:
@@ -154,7 +158,7 @@ def stream_workflow(
             try:
                 item = events.get_nowait()
             except queue.Empty:
-                await asyncio.sleep(0.05)
+                await asyncio.sleep(STREAM_POLL_INTERVAL_SECONDS)
                 continue
             if item is None:
                 break

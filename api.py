@@ -152,6 +152,8 @@ def stream_workflow(
                 {
                     "event": "error",
                     "data": {
+                        "stage": "workflow_run",
+                        "requirement_length": len(requirement),
                         "type": exc.__class__.__name__,
                         "detail": str(exc),
                     },
@@ -198,7 +200,7 @@ def stream_workflow(
 
 @app.get("/ui", response_class=HTMLResponse)
 def workflow_ui() -> str:
-    return """<!DOCTYPE html>
+    html = """<!DOCTYPE html>
 <html lang="en">
 <head>
   <meta charset="utf-8" />
@@ -227,7 +229,7 @@ def workflow_ui() -> str:
     const requirementInput = document.getElementById('requirement');
     const runBtn = document.getElementById('runBtn');
     let source = null;
-    const MAX_REQUIREMENT_LENGTH = 2000;
+    const MAX_REQUIREMENT_LENGTH = __MAX_REQUIREMENT_LENGTH__;
 
     function append(line) {
       events.textContent += line + "\\n";
@@ -275,6 +277,7 @@ def workflow_ui() -> str:
   </script>
 </body>
 </html>"""
+    return html.replace("__MAX_REQUIREMENT_LENGTH__", str(MAX_REQUIREMENT_LENGTH))
 
 
 @app.post("/agents/{agent_role}/run", response_model=WorkflowState)

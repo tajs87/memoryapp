@@ -20,11 +20,13 @@ You can deploy these agents to Azure Container Apps with a container image:
 az login
 az group create --name memoryapp-rg --location eastus
 az acr create --resource-group memoryapp-rg --name memoryappacr --sku Basic
-az acr update --name memoryappacr --admin-enabled true
 az acr build --registry memoryappacr --image memoryapp:latest .
-ACR_USER=$(az acr credential show --name memoryappacr --query username -o tsv)
-ACR_PASS=$(az acr credential show --name memoryappacr --query "passwords[0].value" -o tsv)
 az containerapp env create --name memoryapp-env --resource-group memoryapp-rg --location eastus
+az identity create --name memoryapp-mi --resource-group memoryapp-rg
+IDENTITY_ID=$(az identity show --name memoryapp-mi --resource-group memoryapp-rg --query id -o tsv)
+IDENTITY_PRINCIPAL_ID=$(az identity show --name memoryapp-mi --resource-group memoryapp-rg --query principalId -o tsv)
+ACR_ID=$(az acr show --name memoryappacr --resource-group memoryapp-rg --query id -o tsv)
+az role assignment create --assignee-object-id "$IDENTITY_PRINCIPAL_ID" --assignee-principal-type ServicePrincipal --scope "$ACR_ID" --role AcrPull
 az containerapp create \
   --name memoryapp \
   --resource-group memoryapp-rg \
@@ -33,8 +35,8 @@ az containerapp create \
   --target-port 8000 \
   --ingress external \
   --registry-server memoryappacr.azurecr.io \
-  --registry-username "$ACR_USER" \
-  --registry-password "$ACR_PASS"
+  --user-assigned "$IDENTITY_ID" \
+  --registry-identity "$IDENTITY_ID"
 ```
 
 Get the app URL:

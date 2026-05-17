@@ -1,11 +1,12 @@
 """FastAPI server for interacting with the multi-agent workflow."""
 
 import json
+import asyncio
 import queue
 import threading
 from typing import Any, Dict, List, Optional
 
-from fastapi import FastAPI, HTTPException, Query
+from fastapi import FastAPI, HTTPException, Query, Request
 from fastapi.responses import HTMLResponse, StreamingResponse
 from pydantic import BaseModel, Field
 
@@ -103,16 +104,26 @@ def run_workflow(payload: WorkflowRunRequest) -> WorkflowRunResponse:
 
 @app.get("/workflow/stream")
 def stream_workflow(
+    request: Request,
     requirement: str = Query(min_length=1, max_length=2000),
 ) -> StreamingResponse:
-    events: queue.Queue[Optional[dict[str, Any]]] = queue.Queue()
+    events: queue.Queue[Optional[dict[str, Any]]] = queue.Queue(maxsize=100)
+    stop_event = threading.Event()
+
+    def _safe_put(item: Optional[dict[str, Any]]) -> None:
+        try:
+            events.put_nowait(item)
+        except queue.Full:
+            pass
 
     def _worker() -> None:
         orchestrator = Orchestrator()
 
         def _on_progress(role: AgentRole, state: WorkflowState) -> None:
+            if stop_event.is_set():
+                return
             event = _build_progress_event(role, state)
-            events.put(
+            _safe_put(
                 {
                     "event": "progress",
                     "data": event.model_dump(mode="json"),
@@ -121,23 +132,30 @@ def stream_workflow(
 
         try:
             state = orchestrator.run(requirement, progress_callback=_on_progress)
-            events.put(
+            _safe_put(
                 {
                     "event": "completed",
                     "data": state.model_dump(mode="json"),
                 }
             )
         except Exception as exc:  # pragma: no cover - defensive API fallback
-            events.put({"event": "error", "data": {"detail": str(exc)}})
+            _safe_put({"event": "error", "data": {"detail": str(exc)}})
         finally:
-            events.put(None)
+            _safe_put(None)
 
-    thread = threading.Thread(target=_worker, daemon=True)
+    thread = threading.Thread(target=_worker)
     thread.start()
 
-    def _event_stream():
+    async def _event_stream():
         while True:
-            item = events.get()
+            if await request.is_disconnected():
+                stop_event.set()
+                break
+            try:
+                item = events.get_nowait()
+            except queue.Empty:
+                await asyncio.sleep(0.05)
+                continue
             if item is None:
                 break
             yield (
@@ -192,6 +210,10 @@ def workflow_ui() -> str:
       const requirement = requirementInput.value.trim();
       if (!requirement) {
         append('Requirement is required.');
+        return;
+      }
+      if (requirement.length > 2000) {
+        append('Requirement must be 2000 characters or less.');
         return;
       }
       events.textContent = '';

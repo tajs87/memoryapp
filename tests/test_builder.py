@@ -112,6 +112,19 @@ class TestBuilderAgent:
         assert builder_messages[0].recipient == AgentRole.TESTER
         assert builder_messages[0].message_type == MessageType.BUILD_RESULT
 
+    def test_system_prompt_requires_repo_sync(self, agent: BuilderAgent) -> None:
+        prompt = agent._SYSTEM_PROMPT
+        assert "First create a GitHub repository" in prompt
+        assert "business analyst, architect, and tester" in prompt
+
+    def test_mock_response_mentions_repo_sync(
+        self, agent: BuilderAgent, state_with_arch: WorkflowState
+    ) -> None:
+        result = agent.run(state_with_arch)
+        build = result.build_result
+        assert "github repository" in build.implementation_summary.lower()
+        assert "updated" in build.collaboration_notes.lower()
+
     def test_raises_without_architecture_spec(self, agent: BuilderAgent) -> None:
         state = WorkflowState(original_requirement="Build something")
         with pytest.raises(ValueError, match="ArchitectureSpec"):

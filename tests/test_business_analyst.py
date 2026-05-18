@@ -92,8 +92,8 @@ OUT OF SCOPE:
 - Payment processing.
 
 FEEDBACK:
- Overall requirements are clear.
- """
+Overall requirements are clear.
+"""
         spec = BusinessAnalystAgent._parse_response("original", raw_response)
         assert len(spec.research_sources) == 1
         assert len(spec.clarified_requirements) == 2

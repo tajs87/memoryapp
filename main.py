@@ -117,6 +117,22 @@ def _print_state(state) -> None:  # type: ignore[type-arg]
         build = state.build_result
         status = "✅ SUCCESS" if build.success else "❌ FAILURE"
         print(f"  Status   : {status}")
+        if build.implementation_summary:
+            print(f"  Implementation : {build.implementation_summary}")
+        if build.completed_requirements:
+            print("\n  Requirements coverage:")
+            for item in build.completed_requirements:
+                print(f"    – {item}")
+        if build.unit_tests:
+            print("\n  Unit tests:")
+            for item in build.unit_tests:
+                print(f"    – {item}")
+        if build.regression_tests:
+            print("\n  Regression tests:")
+            for item in build.regression_tests:
+                print(f"    – {item}")
+        if build.collaboration_notes:
+            print(f"\n  Collaboration : {build.collaboration_notes}")
         if build.artifacts:
             print("\n  Artifacts:")
             for a in build.artifacts:

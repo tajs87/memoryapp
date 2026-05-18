@@ -183,6 +183,33 @@ class MockLLM(BaseLLM):
             """\
             BUILD STATUS: SUCCESS
 
+            IMPLEMENTATION:
+            Built the memory application backend and deployment package to satisfy
+            the clarified product requirements and architect-defined flows,
+            including authenticated CRUD APIs, search, validation, and accessible
+            UI styling hooks.
+
+            REQUIREMENTS COVERAGE:
+            - Implemented authenticated memory create, read, update, delete, and search flows.
+            - Applied architect guidance for stateless APIs, PostgreSQL persistence, caching, and deployment readiness.
+            - Included styling tokens and interaction states aligned with the requirement color palette and architect styling guidance.
+
+            UNIT TESTS:
+            - Added service-layer tests for create, update, delete, and search behavior.
+            - Added API tests for authentication, validation errors, and successful CRUD responses.
+            - Added component-level tests for mapper and caching helpers.
+
+            REGRESSION TESTS:
+            - Added regression coverage for unicode search, duplicate submission handling, and authorization boundaries.
+            - Added end-to-end checks for create -> edit -> search -> delete user journeys.
+
+            COLLABORATION:
+            The builder implementation follows the business analyst requirements
+            and architect outputs. If the tester reports implementation defects,
+            missing unit tests, or regression gaps, route the next iteration to
+            the builder; only loop back to the architect or business analyst when
+            design or requirement guidance is missing.
+
             ARTIFACTS:
             - memoryapp-api:latest (Docker image)
             - memoryapp-migrations:latest (Docker image)
@@ -212,12 +239,12 @@ class MockLLM(BaseLLM):
             COVERAGE: 87%
 
             ITERATION NEEDED: Yes
-            SUGGESTED AGENT: architect
+            SUGGESTED AGENT: builder
             ITERATION REASON:
-            The concurrent write failure indicates a missing optimistic-locking
-            strategy. The architect should revisit the database access patterns
-            and add explicit locking guidance before the builder re-implements
-            the affected module.
+            The build needs implementation fixes for concurrent writes and
+            unicode search handling, plus stronger regression coverage for those
+            flows. The builder should update the application code and tests while
+            keeping the existing business and architecture guidance in place.
             """
         ),
     }

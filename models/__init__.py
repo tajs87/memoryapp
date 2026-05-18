@@ -70,6 +70,11 @@ class BuildResult(BaseModel):
     """Result produced by the Builder/Deploy Agent."""
 
     success: bool
+    implementation_summary: str = ""
+    completed_requirements: List[str] = Field(default_factory=list)
+    unit_tests: List[str] = Field(default_factory=list)
+    regression_tests: List[str] = Field(default_factory=list)
+    collaboration_notes: str = ""
     artifacts: List[str] = Field(default_factory=list)
     deployment_url: Optional[str] = None
     logs: str = ""

@@ -9,8 +9,8 @@ deployment, with automatic iteration when tests reveal issues.
 |---|-------|---------------|
 | 1 | **Business Analyst** | Clarifies requirements, references relevant public best practices, defines user flows with inputs/outputs, proposes colors, and flags assumptions/out-of-scope items |
 | 2 | **Architect** | Designs the system architecture using public best practices, including authentication, journeys/flows, styling, scalability, and performance considerations |
-| 3 | **Builder** | Builds and deploys the application, produces artifacts and a deployment URL |
-| 4 | **Tester** | Validates the build against requirements; if failures are found, triggers an iteration back to the appropriate agent |
+| 3 | **Builder** | Builds the application from business and architecture outputs, tracks requirement coverage, unit/regression tests, and deploys artifacts |
+| 4 | **Tester** | Validates the build against business and architecture requirements; if failures are found, routes iteration back to the appropriate agent |
 
 The **Orchestrator** coordinates all four agents.  When the Tester requests an
 iteration the pipeline restarts from the suggested agent (e.g. Architect →

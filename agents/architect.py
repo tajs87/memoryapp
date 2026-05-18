@@ -60,7 +60,22 @@ class ArchitectAgent(BaseAgent):
 
         user_prompt = (
             f"Requirements:\n{requirements_text}\n\n"
-            f"Assumptions:\n"
+            f"Web research:\n"
+            + "\n".join(f"- {source}" for source in spec.research_sources)
+            + "\n\n"
+            + f"User flows:\n"
+            + "\n".join(f"- {flow}" for flow in spec.user_flows)
+            + "\n\n"
+            + f"Inputs:\n"
+            + "\n".join(f"- {item}" for item in spec.inputs)
+            + "\n\n"
+            + f"Outputs:\n"
+            + "\n".join(f"- {item}" for item in spec.outputs)
+            + "\n\n"
+            + f"Color palette:\n"
+            + "\n".join(f"- {color}" for color in spec.color_palette)
+            + "\n\n"
+            + f"Assumptions:\n"
             + "\n".join(f"- {a}" for a in spec.assumptions)
         )
 

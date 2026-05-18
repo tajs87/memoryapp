@@ -34,6 +34,26 @@ def _print_state(state) -> None:  # type: ignore[type-arg]
         if spec.clarified_requirements:
             for req in spec.clarified_requirements:
                 print(f"  • {req}")
+        if spec.research_sources:
+            print("\n  Web research:")
+            for source in spec.research_sources:
+                print(f"    – {source}")
+        if spec.user_flows:
+            print("\n  User flows:")
+            for flow in spec.user_flows:
+                print(f"    – {flow}")
+        if spec.inputs:
+            print("\n  Inputs:")
+            for item in spec.inputs:
+                print(f"    – {item}")
+        if spec.outputs:
+            print("\n  Outputs:")
+            for item in spec.outputs:
+                print(f"    – {item}")
+        if spec.color_palette:
+            print("\n  Color palette:")
+            for color in spec.color_palette:
+                print(f"    – {color}")
         if spec.assumptions:
             print("\n  Assumptions:")
             for a in spec.assumptions:

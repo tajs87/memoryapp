@@ -7,7 +7,7 @@ deployment, with automatic iteration when tests reveal issues.
 
 | # | Agent | Responsibility |
 |---|-------|---------------|
-| 1 | **Business Analyst** | Clarifies requirements, lists assumptions, flags out-of-scope items, provides feedback |
+| 1 | **Business Analyst** | Clarifies requirements, references relevant public best practices, defines user flows with inputs/outputs, proposes colors, and flags assumptions/out-of-scope items |
 | 2 | **Architect** | Designs the system architecture with scalability and performance considerations |
 | 3 | **Builder** | Builds and deploys the application, produces artifacts and a deployment URL |
 | 4 | **Tester** | Validates the build against requirements; if failures are found, triggers an iteration back to the appropriate agent |

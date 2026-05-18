@@ -46,6 +46,11 @@ class TestApi:
         assert response.status_code == 200
         body = response.json()
         assert body["requirement_spec"] is not None
+        assert body["requirement_spec"]["research_sources"]
+        assert body["requirement_spec"]["user_flows"]
+        assert body["requirement_spec"]["inputs"]
+        assert body["requirement_spec"]["outputs"]
+        assert body["requirement_spec"]["color_palette"]
         assert len(body["history"]) == 1
 
     def test_stream_workflow_returns_events(self) -> None:

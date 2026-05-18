@@ -37,6 +37,11 @@ class RequirementSpec(BaseModel):
 
     original_requirement: str
     clarified_requirements: List[str] = Field(default_factory=list)
+    research_sources: List[str] = Field(default_factory=list)
+    user_flows: List[str] = Field(default_factory=list)
+    inputs: List[str] = Field(default_factory=list)
+    outputs: List[str] = Field(default_factory=list)
+    color_palette: List[str] = Field(default_factory=list)
     assumptions: List[str] = Field(default_factory=list)
     out_of_scope: List[str] = Field(default_factory=list)
     feedback: str = ""

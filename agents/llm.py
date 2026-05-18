@@ -55,12 +55,45 @@ class MockLLM(BaseLLM):
     _RESPONSES: dict = {
         "business_analyst": textwrap.dedent(
             """\
+            WEB RESEARCH:
+            - Nielsen Norman Group task-flow guidance suggests each core user goal should follow a clear linear path with a visible success state.
+            - WCAG accessibility guidance recommends not relying on color alone and keeping strong contrast for interactive elements and status states.
+            - Material-style product guidance favors a limited palette with a primary brand color, neutral surfaces and distinct semantic status colors.
+
             CLARIFIED REQUIREMENTS:
             - The system shall allow users to manage memory/notes efficiently.
             - Users can create, read, update and delete entries.
             - The system shall support multiple concurrent users.
             - Data must be persisted across sessions.
             - A RESTful API shall be exposed for integrations.
+
+            USER FLOWS:
+            - Capture memory: open create form -> enter title, body and tags -> save entry -> show the new memory in the list.
+            - Review memory: open the memory list -> search or filter entries -> select one entry -> show the full memory detail view.
+            - Update memory: open an existing memory -> edit title, body or tags -> save changes -> confirm the updated state in the detail view.
+            - Delete memory: open an existing memory -> confirm delete action -> remove entry -> return to the list without the deleted memory.
+
+            INPUTS:
+            - Memory title.
+            - Memory body/content.
+            - Optional tags or categories.
+            - Search query text.
+            - User identity/authentication token.
+
+            OUTPUTS:
+            - Persisted memory records that can be listed and reopened.
+            - Filtered search results for matching memories.
+            - Success or error feedback for create, update and delete actions.
+            - API responses for integrations.
+
+            COLOR PALETTE:
+            - Primary blue: #2563EB.
+            - Accent teal: #0D9488.
+            - Background slate: #F8FAFC.
+            - Surface white: #FFFFFF.
+            - Text charcoal: #1F2937.
+            - Success green: #16A34A.
+            - Error red: #DC2626.
 
             ASSUMPTIONS:
             - Users are authenticated via JWT tokens.
@@ -72,8 +105,9 @@ class MockLLM(BaseLLM):
 
             FEEDBACK:
             The requirements are broadly sound. Clarify whether offline support
-            is needed and confirm the expected daily active user count so the
-            architect can size the infrastructure appropriately.
+            is needed, whether attachments/media should be supported, and confirm
+            the expected daily active user count so the architect can size the
+            infrastructure appropriately.
             """
         ),
         "architect": textwrap.dedent(

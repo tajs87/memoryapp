@@ -75,8 +75,10 @@ class BuildResult(BaseModel):
     unit_tests: List[str] = Field(default_factory=list)
     regression_tests: List[str] = Field(default_factory=list)
     collaboration_notes: str = ""
+    container_details: str = ""
     artifacts: List[str] = Field(default_factory=list)
     deployment_url: Optional[str] = None
+    testing_urls: List[str] = Field(default_factory=list)
     logs: str = ""
     errors: List[str] = Field(default_factory=list)
 

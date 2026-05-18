@@ -38,7 +38,8 @@ def parse_sections(response: str, headings: list[str]) -> dict[str, list[str]]:
         inline_content: str = ""
 
         for heading in headings:
-            if stripped.upper().startswith(heading):
+            upper = stripped.upper()
+            if upper == heading or upper.startswith(f"{heading}:"):
                 matched_heading = heading
                 # Capture any content on the same line after the heading.
                 after = stripped[len(heading):].lstrip(": \t")

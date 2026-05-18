@@ -210,12 +210,23 @@ class MockLLM(BaseLLM):
             the builder; only loop back to the architect or business analyst when
             design or requirement guidance is missing.
 
+            CONTAINER:
+            Deployed as container images to a Kubernetes staging environment.
+            Testers should validate the memoryapp-api:latest image behind the
+            staging ingress and use the published HTTP endpoints below.
+
             ARTIFACTS:
             - memoryapp-api:latest (Docker image)
             - memoryapp-migrations:latest (Docker image)
             - helm/memoryapp-1.0.0.tgz (Helm chart)
 
             DEPLOYMENT URL: https://memoryapp.example.com
+
+            TEST URLS:
+            - https://memoryapp.example.com/health
+            - https://memoryapp.example.com/ui
+            - https://memoryapp.example.com/workflow/stream
+            - https://memoryapp.example.com/agents/builder/run
 
             LOGS:
             [INFO]  Dependencies installed successfully.

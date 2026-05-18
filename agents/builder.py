@@ -39,10 +39,14 @@ class BuilderAgent(BaseAgent):
         5. The regression tests created or executed.
         6. How the builder incorporated architect guidance and tester feedback,
            and when to loop back to business analyst or architect.
-        7. A list of build artifacts produced.
-        8. The deployment URL (or placeholder if not yet available).
-        9. Relevant build/deploy log lines.
-        10. Any errors encountered.
+        7. How the solution is deployed in a container, including the image or
+           runtime details that testers should use.
+        8. A list of build artifacts produced.
+        9. The primary deployment URL (or placeholder if not yet available).
+        10. The URLs testers should use, such as health, API base, UI, or other
+            relevant endpoints.
+        11. Relevant build/deploy log lines.
+        12. Any errors encountered.
 
         Respond in plain text using these exact section headings:
         BUILD STATUS:
@@ -51,8 +55,10 @@ class BuilderAgent(BaseAgent):
         UNIT TESTS:
         REGRESSION TESTS:
         COLLABORATION:
+        CONTAINER:
         ARTIFACTS:
         DEPLOYMENT URL:
+        TEST URLS:
         LOGS:
         ERRORS:
         """
@@ -174,8 +180,10 @@ class BuilderAgent(BaseAgent):
                 "UNIT TESTS",
                 "REGRESSION TESTS",
                 "COLLABORATION",
+                "CONTAINER",
                 "ARTIFACTS",
                 "DEPLOYMENT URL",
+                "TEST URLS",
                 "LOGS",
                 "ERRORS",
             ],
@@ -194,8 +202,10 @@ class BuilderAgent(BaseAgent):
             unit_tests=sections["UNIT TESTS"],
             regression_tests=sections["REGRESSION TESTS"],
             collaboration_notes="\n".join(sections["COLLABORATION"]),
+            container_details="\n".join(sections["CONTAINER"]),
             artifacts=sections["ARTIFACTS"],
             deployment_url=deployment_url,
+            testing_urls=sections["TEST URLS"],
             logs="\n".join(sections["LOGS"]),
             errors=sections["ERRORS"],
         )

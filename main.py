@@ -133,12 +133,18 @@ def _print_state(state) -> None:  # type: ignore[type-arg]
                 print(f"    – {item}")
         if build.collaboration_notes:
             print(f"\n  Collaboration : {build.collaboration_notes}")
+        if build.container_details:
+            print(f"\n  Container : {build.container_details}")
         if build.artifacts:
             print("\n  Artifacts:")
             for a in build.artifacts:
                 print(f"    – {a}")
         if build.deployment_url:
             print(f"\n  URL      : {build.deployment_url}")
+        if build.testing_urls:
+            print("\n  Test URLs:")
+            for url in build.testing_urls:
+                print(f"    – {url}")
         if build.errors:
             print("\n  Errors:")
             for e in build.errors:

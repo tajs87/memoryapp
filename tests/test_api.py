@@ -127,6 +127,8 @@ class TestApi:
         assert body["build_result"]["unit_tests"]
         assert body["build_result"]["regression_tests"]
         assert body["build_result"]["collaboration_notes"]
+        assert body["build_result"]["container_details"]
+        assert body["build_result"]["testing_urls"]
 
     def test_stream_workflow_returns_events(self) -> None:
         response = client.get(

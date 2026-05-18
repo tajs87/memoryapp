@@ -98,6 +98,8 @@ class TestBuilderAgent:
         assert len(build.unit_tests) > 0
         assert len(build.regression_tests) > 0
         assert build.collaboration_notes != ""
+        assert build.container_details != ""
+        assert len(build.testing_urls) > 0
 
     def test_message_sent_to_tester(
         self, agent: BuilderAgent, state_with_arch: WorkflowState
@@ -131,9 +133,14 @@ REGRESSION TESTS:
 COLLABORATION:
 Escalate only if requirement or architecture guidance is missing.
 
+CONTAINER:
+Container image was not built.
+
 ARTIFACTS:
 
 DEPLOYMENT URL:
+
+TEST URLS:
 
 LOGS:
 [ERROR] Compilation failed.
@@ -144,6 +151,7 @@ ERRORS:
         result = BuilderAgent._parse_response(raw)
         assert result.success is False
         assert result.implementation_summary == "Build did not complete."
+        assert result.container_details == "Container image was not built."
         assert len(result.errors) == 1
 
     def test_parse_response_success(self) -> None:
@@ -165,10 +173,17 @@ REGRESSION TESTS:
 COLLABORATION:
 Tester feedback should return to the builder for code fixes.
 
+CONTAINER:
+Deployed app:latest as a container to staging.
+
 ARTIFACTS:
 - app:latest
 
 DEPLOYMENT URL: https://example.com
+
+TEST URLS:
+- https://example.com/health
+- https://example.com/ui
 
 LOGS:
 [INFO] Done.
@@ -182,4 +197,9 @@ ERRORS:
         assert len(result.unit_tests) == 1
         assert len(result.regression_tests) == 1
         assert "builder" in result.collaboration_notes.lower()
+        assert "container" in result.container_details.lower()
         assert result.deployment_url == "https://example.com"
+        assert result.testing_urls == [
+            "https://example.com/health",
+            "https://example.com/ui",
+        ]

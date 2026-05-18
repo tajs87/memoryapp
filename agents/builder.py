@@ -39,14 +39,17 @@ class BuilderAgent(BaseAgent):
         5. The regression tests created or executed.
         6. How the builder incorporated architect guidance and tester feedback,
            and when to loop back to business analyst or architect.
-        7. How the solution is deployed in a container, including the image or
+        7. First create a GitHub repository for the implementation if one does
+           not already exist, then keep it updated with commits that include the
+           latest outputs from the business analyst, architect, and tester.
+        8. How the solution is deployed in a container, including the image or
            runtime details that testers should use.
-        8. A list of build artifacts produced.
-        9. The primary deployment URL (or placeholder if not yet available).
-        10. The URLs testers should use, such as health, API base, UI, or other
+        9. A list of build artifacts produced.
+        10. The primary deployment URL (or placeholder if not yet available).
+        11. The URLs testers should use, such as health, API base, UI, or other
             relevant endpoints.
-        11. Relevant build/deploy log lines.
-        12. Any errors encountered.
+        12. Relevant build/deploy log lines.
+        13. Any errors encountered.
 
         Respond in plain text using these exact section headings:
         BUILD STATUS:

@@ -46,7 +46,89 @@ class TestApi:
         assert response.status_code == 200
         body = response.json()
         assert body["requirement_spec"] is not None
+        assert body["requirement_spec"]["research_sources"]
+        assert body["requirement_spec"]["user_flows"]
+        assert body["requirement_spec"]["inputs"]
+        assert body["requirement_spec"]["outputs"]
+        assert body["requirement_spec"]["color_palette"]
         assert len(body["history"]) == 1
+
+    def test_run_architect_single_agent(self) -> None:
+        response = client.post(
+            "/agents/architect/run",
+            json={
+                "original_requirement": "Build a memory app",
+                "requirement_spec": {
+                    "original_requirement": "Build a memory app",
+                    "clarified_requirements": ["Users can create notes"],
+                    "research_sources": ["WCAG accessibility guidance"],
+                    "user_flows": ["Create memory -> save -> confirmation"],
+                    "inputs": ["Memory content"],
+                    "outputs": ["Saved memory"],
+                    "color_palette": ["Primary blue: #2563EB"],
+                    "assumptions": ["Users are authenticated"],
+                    "out_of_scope": [],
+                    "feedback": "",
+                },
+            },
+        )
+        assert response.status_code == 200
+        body = response.json()
+        assert body["architecture_spec"] is not None
+        assert body["architecture_spec"]["research_sources"]
+        assert body["architecture_spec"]["architectural_requirements"]
+        assert body["architecture_spec"]["authentication_strategy"]
+        assert body["architecture_spec"]["user_journeys"]
+        assert body["architecture_spec"]["user_flows"]
+        assert body["architecture_spec"]["inputs"]
+        assert body["architecture_spec"]["outputs"]
+        assert body["architecture_spec"]["styling_guidance"]
+
+    def test_run_builder_single_agent(self) -> None:
+        response = client.post(
+            "/agents/builder/run",
+            json={
+                "original_requirement": "Build a memory app",
+                "requirement_spec": {
+                    "original_requirement": "Build a memory app",
+                    "clarified_requirements": ["Users can create notes"],
+                    "research_sources": ["WCAG accessibility guidance"],
+                    "user_flows": ["Create memory -> save -> confirmation"],
+                    "inputs": ["Memory content"],
+                    "outputs": ["Saved memory"],
+                    "color_palette": ["Primary blue: #2563EB"],
+                    "assumptions": ["Users are authenticated"],
+                    "out_of_scope": [],
+                    "feedback": "",
+                },
+                "architecture_spec": {
+                    "research_sources": ["OWASP authentication guidance"],
+                    "architectural_requirements": ["Authenticated CRUD APIs"],
+                    "system_overview": "Three-tier web app",
+                    "components": [{"description": "FastAPI service"}],
+                    "authentication_strategy": "JWT",
+                    "user_journeys": ["Sign in -> dashboard -> create memory"],
+                    "user_flows": ["Create memory -> save -> confirmation"],
+                    "inputs": ["Memory content"],
+                    "outputs": ["Saved memory"],
+                    "styling_guidance": ["Use accessible semantic colors"],
+                    "scalability_notes": "Horizontal scaling",
+                    "performance_notes": "Cache frequent reads",
+                    "technology_stack": ["Python", "FastAPI"],
+                    "deployment_strategy": "Kubernetes on AWS",
+                },
+            },
+        )
+        assert response.status_code == 200
+        body = response.json()
+        assert body["build_result"] is not None
+        assert body["build_result"]["implementation_summary"]
+        assert body["build_result"]["completed_requirements"]
+        assert body["build_result"]["unit_tests"]
+        assert body["build_result"]["regression_tests"]
+        assert body["build_result"]["collaboration_notes"]
+        assert body["build_result"]["container_details"]
+        assert body["build_result"]["testing_urls"]
 
     def test_stream_workflow_returns_events(self) -> None:
         response = client.get(

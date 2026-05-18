@@ -8,7 +8,14 @@ sys.path.insert(0, os.path.join(os.path.dirname(__file__), ".."))
 import pytest
 from agents.llm import MockLLM
 from agents.tester import TesterAgent
-from models import AgentRole, BuildResult, MessageType, WorkflowState
+from models import (
+    AgentRole,
+    ArchitectureSpec,
+    BuildResult,
+    MessageType,
+    RequirementSpec,
+    WorkflowState,
+)
 
 
 @pytest.fixture
@@ -19,8 +26,21 @@ def agent() -> TesterAgent:
 @pytest.fixture
 def state_with_build() -> WorkflowState:
     state = WorkflowState(original_requirement="Build a memory app")
+    state.requirement_spec = RequirementSpec(
+        original_requirement="Build a memory app",
+        clarified_requirements=["Users can create notes"],
+    )
+    state.architecture_spec = ArchitectureSpec(
+        architectural_requirements=["Authenticated CRUD APIs"],
+        system_overview="Three-tier web app",
+    )
     state.build_result = BuildResult(
         success=True,
+        implementation_summary="Implemented authenticated CRUD APIs.",
+        completed_requirements=["Users can create notes"],
+        unit_tests=["test_create_memory"],
+        regression_tests=["test_unicode_search"],
+        collaboration_notes="Tester feedback should return to the builder for code fixes.",
         artifacts=["memoryapp-api:latest"],
         deployment_url="https://example.com",
         logs="[INFO] Build succeeded",
@@ -57,7 +77,7 @@ class TestTesterAgent:
         result = agent.run(state_with_build)
         # Mock tester response signals iteration needed
         assert result.test_result.iteration_needed is True
-        assert result.test_result.suggested_agent == AgentRole.ARCHITECT
+        assert result.test_result.suggested_agent == AgentRole.BUILDER
 
     def test_message_sent_for_iteration(
         self, agent: TesterAgent, state_with_build: WorkflowState
@@ -69,6 +89,7 @@ class TestTesterAgent:
         assert len(tester_messages) == 1
         msg = tester_messages[0]
         assert msg.message_type == MessageType.ITERATION_REQUEST
+        assert msg.recipient == AgentRole.BUILDER
 
     def test_raises_without_build_result(self, agent: TesterAgent) -> None:
         state = WorkflowState(original_requirement="Build something")

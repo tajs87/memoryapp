@@ -55,12 +55,45 @@ class MockLLM(BaseLLM):
     _RESPONSES: dict = {
         "business_analyst": textwrap.dedent(
             """\
+            WEB RESEARCH:
+            - Nielsen Norman Group task-flow guidance suggests each core user goal should follow a clear linear path with a visible success state.
+            - WCAG accessibility guidance recommends not relying on color alone and keeping strong contrast for interactive elements and status states.
+            - Material-style product guidance favors a limited palette with a primary brand color, neutral surfaces and distinct semantic status colors.
+
             CLARIFIED REQUIREMENTS:
             - The system shall allow users to manage memory/notes efficiently.
             - Users can create, read, update and delete entries.
             - The system shall support multiple concurrent users.
             - Data must be persisted across sessions.
             - A RESTful API shall be exposed for integrations.
+
+            USER FLOWS:
+            - Capture memory: open create form -> enter title, body and tags -> save entry -> show the new memory in the list.
+            - Review memory: open the memory list -> search or filter entries -> select one entry -> show the full memory detail view.
+            - Update memory: open an existing memory -> edit title, body or tags -> save changes -> confirm the updated state in the detail view.
+            - Delete memory: open an existing memory -> confirm delete action -> remove entry -> return to the list without the deleted memory.
+
+            INPUTS:
+            - Memory title.
+            - Memory body/content.
+            - Optional tags or categories.
+            - Search query text.
+            - User identity/authentication token.
+
+            OUTPUTS:
+            - Persisted memory records that can be listed and reopened.
+            - Filtered search results for matching memories.
+            - Success or error feedback for create, update and delete actions.
+            - API responses for integrations.
+
+            COLOR PALETTE:
+            - Primary blue: #2563EB.
+            - Accent teal: #0D9488.
+            - Background slate: #F8FAFC.
+            - Surface white: #FFFFFF.
+            - Text charcoal: #1F2937.
+            - Success green: #16A34A.
+            - Error red: #DC2626.
 
             ASSUMPTIONS:
             - Users are authenticated via JWT tokens.
@@ -72,12 +105,24 @@ class MockLLM(BaseLLM):
 
             FEEDBACK:
             The requirements are broadly sound. Clarify whether offline support
-            is needed and confirm the expected daily active user count so the
-            architect can size the infrastructure appropriately.
+            is needed, whether attachments/media should be supported, and confirm
+            the expected daily active user count so the architect can size the
+            infrastructure appropriately.
             """
         ),
         "architect": textwrap.dedent(
             """\
+            WEB RESEARCH:
+            - OWASP authentication guidance recommends short-lived tokens, secure password hashing, and defense-in-depth around login and session flows.
+            - Cloud architecture best practices favor stateless application tiers, managed databases, caching, and observable services for horizontal scale.
+            - Modern product design guidance recommends mapping end-to-end user journeys, explicit success/error states, and consistent visual styling tokens.
+
+            ARCHITECTURAL REQUIREMENTS:
+            - The architecture must support secure authenticated access for multiple concurrent users.
+            - The design must persist memory records reliably and expose fast search and retrieval paths.
+            - The system must provide clear create, review, update, and delete user journeys across web and mobile-friendly clients.
+            - The solution should support accessible styling and consistent interaction feedback.
+
             SYSTEM OVERVIEW:
             A three-tier web application with a stateless REST API, a relational
             database for persistence and a caching layer for read-heavy workloads.
@@ -91,6 +136,35 @@ class MockLLM(BaseLLM):
 
             TECHNOLOGY STACK:
             Python 3.12, FastAPI, PostgreSQL 16, Redis 7, Docker, Kubernetes
+
+            AUTHENTICATION:
+            Use JWT-based authentication with short-lived access tokens, refresh
+            tokens stored securely, role-aware authorization checks in the API
+            layer, and audit logging for sensitive account actions.
+
+            USER JOURNEYS:
+            - New user onboarding: sign in -> land on memory dashboard -> review empty-state guidance -> create first memory.
+            - Returning user retrieval: authenticate -> open dashboard -> search or filter memories -> open a selected memory detail view.
+
+            USER FLOWS:
+            - Create memory flow: open create screen -> enter title, content and tags -> submit -> validate -> persist record -> show success state.
+            - Update memory flow: open memory detail -> edit content -> save changes -> persist revision -> show updated detail state.
+            - Delete memory flow: open memory detail -> choose delete -> confirm action -> remove record -> return to filtered list with feedback.
+
+            INPUTS:
+            - Authentication credentials or session token.
+            - Memory title, content, tags, and optional metadata.
+            - Search/filter terms and sort preferences.
+
+            OUTPUTS:
+            - Authenticated session state and authorization decisions.
+            - Persisted memory records, detail views, and filtered search results.
+            - Success, validation, and error feedback across each user journey.
+
+            STYLING:
+            - Use a calm blue/teal primary palette with high-contrast text and neutral surfaces.
+            - Provide consistent button, form, and status-state styling tokens aligned with the requirement color palette.
+            - Ensure error, success, and focus states remain distinguishable without relying on color alone.
 
             SCALABILITY:
             Horizontal pod autoscaling on the application tier; read replicas for
@@ -109,12 +183,50 @@ class MockLLM(BaseLLM):
             """\
             BUILD STATUS: SUCCESS
 
+            IMPLEMENTATION:
+            Built the memory application backend and deployment package to satisfy
+            the clarified product requirements and architect-defined flows,
+            including authenticated CRUD APIs, search, validation, and accessible
+            UI styling hooks.
+
+            REQUIREMENTS COVERAGE:
+            - Implemented authenticated memory create, read, update, delete, and search flows.
+            - Applied architect guidance for stateless APIs, PostgreSQL persistence, caching, and deployment readiness.
+            - Included styling tokens and interaction states aligned with the requirement color palette and architect styling guidance.
+
+            UNIT TESTS:
+            - Added service-layer tests for create, update, delete, and search behavior.
+            - Added API tests for authentication, validation errors, and successful CRUD responses.
+            - Added component-level tests for mapper and caching helpers.
+
+            REGRESSION TESTS:
+            - Added regression coverage for unicode search, duplicate submission handling, and authorization boundaries.
+            - Added end-to-end checks for create -> edit -> search -> delete user journeys.
+
+            COLLABORATION:
+            The builder implementation follows the business analyst requirements
+            and architect outputs. If the tester reports implementation defects,
+            missing unit tests, or regression gaps, route the next iteration to
+            the builder; only loop back to the architect or business analyst when
+            design or requirement guidance is missing.
+
+            CONTAINER:
+            Deployed as container images to a Kubernetes staging environment.
+            Testers should validate the memoryapp-api:latest image behind the
+            staging ingress and use the published HTTP endpoints below.
+
             ARTIFACTS:
             - memoryapp-api:latest (Docker image)
             - memoryapp-migrations:latest (Docker image)
             - helm/memoryapp-1.0.0.tgz (Helm chart)
 
             DEPLOYMENT URL: https://memoryapp.example.com
+
+            TEST URLS:
+            - https://memoryapp.example.com/health
+            - https://memoryapp.example.com/ui
+            - https://memoryapp.example.com/workflow/stream
+            - https://memoryapp.example.com/agents/builder/run
 
             LOGS:
             [INFO]  Dependencies installed successfully.
@@ -138,12 +250,12 @@ class MockLLM(BaseLLM):
             COVERAGE: 87%
 
             ITERATION NEEDED: Yes
-            SUGGESTED AGENT: architect
+            SUGGESTED AGENT: builder
             ITERATION REASON:
-            The concurrent write failure indicates a missing optimistic-locking
-            strategy. The architect should revisit the database access patterns
-            and add explicit locking guidance before the builder re-implements
-            the affected module.
+            The build needs implementation fixes for concurrent writes and
+            unicode search handling, plus stronger regression coverage for those
+            flows. The builder should update the application code and tests while
+            keeping the existing business and architecture guidance in place.
             """
         ),
     }

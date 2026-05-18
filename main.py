@@ -34,6 +34,26 @@ def _print_state(state) -> None:  # type: ignore[type-arg]
         if spec.clarified_requirements:
             for req in spec.clarified_requirements:
                 print(f"  • {req}")
+        if spec.research_sources:
+            print("\n  Web research:")
+            for source in spec.research_sources:
+                print(f"    – {source}")
+        if spec.user_flows:
+            print("\n  User flows:")
+            for flow in spec.user_flows:
+                print(f"    – {flow}")
+        if spec.inputs:
+            print("\n  Inputs:")
+            for item in spec.inputs:
+                print(f"    – {item}")
+        if spec.outputs:
+            print("\n  Outputs:")
+            for item in spec.outputs:
+                print(f"    – {item}")
+        if spec.color_palette:
+            print("\n  Color palette:")
+            for color in spec.color_palette:
+                print(f"    – {color}")
         if spec.assumptions:
             print("\n  Assumptions:")
             for a in spec.assumptions:
@@ -48,6 +68,14 @@ def _print_state(state) -> None:  # type: ignore[type-arg]
     if state.architecture_spec:
         _banner("ARCHITECT  –  System Architecture")
         arch = state.architecture_spec
+        if arch.research_sources:
+            print("  Web research:")
+            for source in arch.research_sources:
+                print(f"    – {source}")
+        if arch.architectural_requirements:
+            print("\n  Architectural requirements:")
+            for item in arch.architectural_requirements:
+                print(f"    – {item}")
         print(f"  Overview : {arch.system_overview}")
         if arch.components:
             print("\n  Components:")
@@ -55,6 +83,28 @@ def _print_state(state) -> None:  # type: ignore[type-arg]
                 print(f"    – {c.get('description', '')}")
         if arch.technology_stack:
             print(f"\n  Stack    : {', '.join(arch.technology_stack)}")
+        if arch.authentication_strategy:
+            print(f"\n  Authentication : {arch.authentication_strategy}")
+        if arch.user_journeys:
+            print("\n  User journeys:")
+            for journey in arch.user_journeys:
+                print(f"    – {journey}")
+        if arch.user_flows:
+            print("\n  User flows:")
+            for flow in arch.user_flows:
+                print(f"    – {flow}")
+        if arch.inputs:
+            print("\n  Inputs:")
+            for item in arch.inputs:
+                print(f"    – {item}")
+        if arch.outputs:
+            print("\n  Outputs:")
+            for item in arch.outputs:
+                print(f"    – {item}")
+        if arch.styling_guidance:
+            print("\n  Styling:")
+            for item in arch.styling_guidance:
+                print(f"    – {item}")
         if arch.scalability_notes:
             print(f"\n  Scalability : {arch.scalability_notes}")
         if arch.performance_notes:
@@ -67,12 +117,34 @@ def _print_state(state) -> None:  # type: ignore[type-arg]
         build = state.build_result
         status = "✅ SUCCESS" if build.success else "❌ FAILURE"
         print(f"  Status   : {status}")
+        if build.implementation_summary:
+            print(f"  Implementation : {build.implementation_summary}")
+        if build.completed_requirements:
+            print("\n  Requirements coverage:")
+            for item in build.completed_requirements:
+                print(f"    – {item}")
+        if build.unit_tests:
+            print("\n  Unit tests:")
+            for item in build.unit_tests:
+                print(f"    – {item}")
+        if build.regression_tests:
+            print("\n  Regression tests:")
+            for item in build.regression_tests:
+                print(f"    – {item}")
+        if build.collaboration_notes:
+            print(f"\n  Collaboration : {build.collaboration_notes}")
+        if build.container_details:
+            print(f"\n  Container : {build.container_details}")
         if build.artifacts:
             print("\n  Artifacts:")
             for a in build.artifacts:
                 print(f"    – {a}")
         if build.deployment_url:
             print(f"\n  URL      : {build.deployment_url}")
+        if build.testing_urls:
+            print("\n  Test URLs:")
+            for url in build.testing_urls:
+                print(f"    – {url}")
         if build.errors:
             print("\n  Errors:")
             for e in build.errors:

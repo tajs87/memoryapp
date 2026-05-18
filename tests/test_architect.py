@@ -49,6 +49,20 @@ class TestArchitectAgent:
         result = agent.run(state_with_spec)
         assert len(result.architecture_spec.components) > 0
 
+    def test_additional_architecture_sections_non_empty(
+        self, agent: ArchitectAgent, state_with_spec: WorkflowState
+    ) -> None:
+        result = agent.run(state_with_spec)
+        spec = result.architecture_spec
+        assert len(spec.research_sources) > 0
+        assert len(spec.architectural_requirements) > 0
+        assert spec.authentication_strategy != ""
+        assert len(spec.user_journeys) > 0
+        assert len(spec.user_flows) > 0
+        assert len(spec.inputs) > 0
+        assert len(spec.outputs) > 0
+        assert len(spec.styling_guidance) > 0
+
     def test_message_sent_to_builder(
         self, agent: ArchitectAgent, state_with_spec: WorkflowState
     ) -> None:
@@ -67,6 +81,12 @@ class TestArchitectAgent:
 
     def test_parse_response_all_sections(self) -> None:
         raw = """
+WEB RESEARCH:
+- OWASP authentication guidance.
+
+ARCHITECTURAL REQUIREMENTS:
+- Secure authenticated access.
+
 SYSTEM OVERVIEW:
 A distributed system.
 
@@ -76,6 +96,24 @@ COMPONENTS:
 TECHNOLOGY STACK:
 - Python
 - Docker
+
+AUTHENTICATION:
+JWT with refresh tokens.
+
+USER JOURNEYS:
+- Sign in -> dashboard -> create first memory.
+
+USER FLOWS:
+- Create memory -> save -> confirmation.
+
+INPUTS:
+- Memory content.
+
+OUTPUTS:
+- Persisted memory detail.
+
+STYLING:
+- Neutral surfaces with high-contrast text.
 
 SCALABILITY:
 Horizontal scaling.
@@ -87,9 +125,17 @@ DEPLOYMENT:
 Kubernetes on AWS.
 """
         spec = ArchitectAgent._parse_response(raw)
+        assert len(spec.research_sources) == 1
+        assert len(spec.architectural_requirements) == 1
         assert "distributed" in spec.system_overview.lower()
         assert len(spec.components) >= 1
         assert "Python" in spec.technology_stack
+        assert "JWT" in spec.authentication_strategy
+        assert len(spec.user_journeys) == 1
+        assert len(spec.user_flows) == 1
+        assert len(spec.inputs) == 1
+        assert len(spec.outputs) == 1
+        assert len(spec.styling_guidance) == 1
         assert "Horizontal" in spec.scalability_notes
         assert "200ms" in spec.performance_notes
         assert "Kubernetes" in spec.deployment_strategy

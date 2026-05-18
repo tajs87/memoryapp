@@ -36,7 +36,7 @@ class TesterAgent(BaseAgent):
         [AGENT:tester]
         You are a senior QA Engineer. Given the original requirements and the
         result of a build/deployment, evaluate whether the application meets all
-        requirements. Your output must include:
+        business analyst and architect requirements. Your output must include:
         1. A test summary (tests run, passed, failed).
         2. A list of specific test failures (if any).
         3. An estimated test coverage percentage.
@@ -44,6 +44,9 @@ class TesterAgent(BaseAgent):
         5. If iteration is needed, which agent should be called next:
            business_analyst, architect, or builder.
         6. The reason an iteration is needed.
+        Prefer builder when the issue is an implementation, unit-test, or
+        regression-test gap. Only escalate to business_analyst or architect when
+        the failure is caused by unclear requirements or missing design guidance.
 
         Respond in plain text using these exact section headings:
         TEST SUMMARY:
@@ -67,10 +70,21 @@ class TesterAgent(BaseAgent):
             requirements_text = "\n".join(
                 f"- {r}" for r in state.requirement_spec.clarified_requirements
             )
+        architecture_text = ""
+        if state.architecture_spec:
+            architecture_lines = [
+                f"- {item}" for item in state.architecture_spec.architectural_requirements
+            ] or [f"- {state.architecture_spec.system_overview}"]
+            architecture_text = "\n".join(architecture_lines)
 
         build = state.build_result
         build_summary = (
             f"Build success: {build.success}\n"
+            f"Implementation:\n{build.implementation_summary or 'N/A'}\n"
+            f"Completed requirements: {', '.join(build.completed_requirements) or 'None'}\n"
+            f"Unit tests: {', '.join(build.unit_tests) or 'None'}\n"
+            f"Regression tests: {', '.join(build.regression_tests) or 'None'}\n"
+            f"Collaboration: {build.collaboration_notes or 'None'}\n"
             f"Artifacts: {', '.join(build.artifacts)}\n"
             f"Deployment URL: {build.deployment_url or 'N/A'}\n"
             f"Logs:\n{build.logs}\n"
@@ -79,6 +93,7 @@ class TesterAgent(BaseAgent):
 
         user_prompt = (
             f"Requirements:\n{requirements_text or state.original_requirement}\n\n"
+            f"Architecture requirements:\n{architecture_text or 'None'}\n\n"
             f"Build result:\n{build_summary}"
         )
 

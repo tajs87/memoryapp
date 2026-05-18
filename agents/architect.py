@@ -29,17 +29,32 @@ class ArchitectAgent(BaseAgent):
         [AGENT:architect]
         You are a principal Software Architect. Given a set of requirements, design
         a production-ready system architecture. You must:
-        1. Provide a high-level system overview.
-        2. List each major component and its responsibility.
-        3. Specify the technology stack.
-        4. Explain scalability considerations.
-        5. Explain performance considerations.
-        6. Describe the deployment strategy.
+        1. Use relevant public architecture/product best practices when available
+           and cite the sources or standards that most influenced the design.
+        2. Restate the key architectural requirements that drive the design.
+        3. Provide a high-level system overview.
+        4. List each major component and its responsibility.
+        5. Specify the technology stack.
+        6. Define the authentication approach.
+        7. Describe the main user journeys and user flows as clear steps.
+        8. Identify the main system inputs and outputs.
+        9. Provide styling guidance that aligns with the product goals.
+        10. Explain scalability considerations.
+        11. Explain performance considerations.
+        12. Describe the deployment strategy.
 
         Respond in plain text using these exact section headings:
+        WEB RESEARCH:
+        ARCHITECTURAL REQUIREMENTS:
         SYSTEM OVERVIEW:
         COMPONENTS:
         TECHNOLOGY STACK:
+        AUTHENTICATION:
+        USER JOURNEYS:
+        USER FLOWS:
+        INPUTS:
+        OUTPUTS:
+        STYLING:
         SCALABILITY:
         PERFORMANCE:
         DEPLOYMENT:
@@ -106,7 +121,22 @@ class ArchitectAgent(BaseAgent):
     def _parse_response(response: str) -> ArchitectureSpec:
         sections = parse_sections(
             response,
-            ["SYSTEM OVERVIEW", "COMPONENTS", "TECHNOLOGY STACK", "SCALABILITY", "PERFORMANCE", "DEPLOYMENT"],
+            [
+                "WEB RESEARCH",
+                "ARCHITECTURAL REQUIREMENTS",
+                "SYSTEM OVERVIEW",
+                "COMPONENTS",
+                "TECHNOLOGY STACK",
+                "AUTHENTICATION",
+                "USER JOURNEYS",
+                "USER FLOWS",
+                "INPUTS",
+                "OUTPUTS",
+                "STYLING",
+                "SCALABILITY",
+                "PERFORMANCE",
+                "DEPLOYMENT",
+            ],
         )
 
         def _join(key: str) -> str:
@@ -119,9 +149,17 @@ class ArchitectAgent(BaseAgent):
         ]
 
         return ArchitectureSpec(
+            research_sources=sections["WEB RESEARCH"],
+            architectural_requirements=sections["ARCHITECTURAL REQUIREMENTS"],
             system_overview=_join("SYSTEM OVERVIEW"),
             components=components,
             technology_stack=sections["TECHNOLOGY STACK"],
+            authentication_strategy=_join("AUTHENTICATION"),
+            user_journeys=sections["USER JOURNEYS"],
+            user_flows=sections["USER FLOWS"],
+            inputs=sections["INPUTS"],
+            outputs=sections["OUTPUTS"],
+            styling_guidance=sections["STYLING"],
             scalability_notes=_join("SCALABILITY"),
             performance_notes=_join("PERFORMANCE"),
             deployment_strategy=_join("DEPLOYMENT"),

@@ -68,6 +68,14 @@ def _print_state(state) -> None:  # type: ignore[type-arg]
     if state.architecture_spec:
         _banner("ARCHITECT  –  System Architecture")
         arch = state.architecture_spec
+        if arch.research_sources:
+            print("  Web research:")
+            for source in arch.research_sources:
+                print(f"    – {source}")
+        if arch.architectural_requirements:
+            print("\n  Architectural requirements:")
+            for item in arch.architectural_requirements:
+                print(f"    – {item}")
         print(f"  Overview : {arch.system_overview}")
         if arch.components:
             print("\n  Components:")
@@ -75,6 +83,28 @@ def _print_state(state) -> None:  # type: ignore[type-arg]
                 print(f"    – {c.get('description', '')}")
         if arch.technology_stack:
             print(f"\n  Stack    : {', '.join(arch.technology_stack)}")
+        if arch.authentication_strategy:
+            print(f"\n  Authentication : {arch.authentication_strategy}")
+        if arch.user_journeys:
+            print("\n  User journeys:")
+            for journey in arch.user_journeys:
+                print(f"    – {journey}")
+        if arch.user_flows:
+            print("\n  User flows:")
+            for flow in arch.user_flows:
+                print(f"    – {flow}")
+        if arch.inputs:
+            print("\n  Inputs:")
+            for item in arch.inputs:
+                print(f"    – {item}")
+        if arch.outputs:
+            print("\n  Outputs:")
+            for item in arch.outputs:
+                print(f"    – {item}")
+        if arch.styling_guidance:
+            print("\n  Styling:")
+            for item in arch.styling_guidance:
+                print(f"    – {item}")
         if arch.scalability_notes:
             print(f"\n  Scalability : {arch.scalability_notes}")
         if arch.performance_notes:

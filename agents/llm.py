@@ -112,6 +112,17 @@ class MockLLM(BaseLLM):
         ),
         "architect": textwrap.dedent(
             """\
+            WEB RESEARCH:
+            - OWASP authentication guidance recommends short-lived tokens, secure password hashing, and defense-in-depth around login and session flows.
+            - Cloud architecture best practices favor stateless application tiers, managed databases, caching, and observable services for horizontal scale.
+            - Modern product design guidance recommends mapping end-to-end user journeys, explicit success/error states, and consistent visual styling tokens.
+
+            ARCHITECTURAL REQUIREMENTS:
+            - The architecture must support secure authenticated access for multiple concurrent users.
+            - The design must persist memory records reliably and expose fast search and retrieval paths.
+            - The system must provide clear create, review, update, and delete user journeys across web and mobile-friendly clients.
+            - The solution should support accessible styling and consistent interaction feedback.
+
             SYSTEM OVERVIEW:
             A three-tier web application with a stateless REST API, a relational
             database for persistence and a caching layer for read-heavy workloads.
@@ -125,6 +136,35 @@ class MockLLM(BaseLLM):
 
             TECHNOLOGY STACK:
             Python 3.12, FastAPI, PostgreSQL 16, Redis 7, Docker, Kubernetes
+
+            AUTHENTICATION:
+            Use JWT-based authentication with short-lived access tokens, refresh
+            tokens stored securely, role-aware authorization checks in the API
+            layer, and audit logging for sensitive account actions.
+
+            USER JOURNEYS:
+            - New user onboarding: sign in -> land on memory dashboard -> review empty-state guidance -> create first memory.
+            - Returning user retrieval: authenticate -> open dashboard -> search or filter memories -> open a selected memory detail view.
+
+            USER FLOWS:
+            - Create memory flow: open create screen -> enter title, content and tags -> submit -> validate -> persist record -> show success state.
+            - Update memory flow: open memory detail -> edit content -> save changes -> persist revision -> show updated detail state.
+            - Delete memory flow: open memory detail -> choose delete -> confirm action -> remove record -> return to filtered list with feedback.
+
+            INPUTS:
+            - Authentication credentials or session token.
+            - Memory title, content, tags, and optional metadata.
+            - Search/filter terms and sort preferences.
+
+            OUTPUTS:
+            - Authenticated session state and authorization decisions.
+            - Persisted memory records, detail views, and filtered search results.
+            - Success, validation, and error feedback across each user journey.
+
+            STYLING:
+            - Use a calm blue/teal primary palette with high-contrast text and neutral surfaces.
+            - Provide consistent button, form, and status-state styling tokens aligned with the requirement color palette.
+            - Ensure error, success, and focus states remain distinguishable without relying on color alone.
 
             SCALABILITY:
             Horizontal pod autoscaling on the application tier; read replicas for

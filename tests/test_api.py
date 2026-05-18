@@ -53,6 +53,37 @@ class TestApi:
         assert body["requirement_spec"]["color_palette"]
         assert len(body["history"]) == 1
 
+    def test_run_architect_single_agent(self) -> None:
+        response = client.post(
+            "/agents/architect/run",
+            json={
+                "original_requirement": "Build a memory app",
+                "requirement_spec": {
+                    "original_requirement": "Build a memory app",
+                    "clarified_requirements": ["Users can create notes"],
+                    "research_sources": ["WCAG accessibility guidance"],
+                    "user_flows": ["Create memory -> save -> confirmation"],
+                    "inputs": ["Memory content"],
+                    "outputs": ["Saved memory"],
+                    "color_palette": ["Primary blue: #2563EB"],
+                    "assumptions": ["Users are authenticated"],
+                    "out_of_scope": [],
+                    "feedback": "",
+                },
+            },
+        )
+        assert response.status_code == 200
+        body = response.json()
+        assert body["architecture_spec"] is not None
+        assert body["architecture_spec"]["research_sources"]
+        assert body["architecture_spec"]["architectural_requirements"]
+        assert body["architecture_spec"]["authentication_strategy"]
+        assert body["architecture_spec"]["user_journeys"]
+        assert body["architecture_spec"]["user_flows"]
+        assert body["architecture_spec"]["inputs"]
+        assert body["architecture_spec"]["outputs"]
+        assert body["architecture_spec"]["styling_guidance"]
+
     def test_stream_workflow_returns_events(self) -> None:
         response = client.get(
             "/workflow/stream",

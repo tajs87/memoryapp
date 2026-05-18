@@ -50,8 +50,16 @@ class RequirementSpec(BaseModel):
 class ArchitectureSpec(BaseModel):
     """Architecture document produced by the Architecture Agent."""
 
+    research_sources: List[str] = Field(default_factory=list)
+    architectural_requirements: List[str] = Field(default_factory=list)
     system_overview: str
     components: List[Dict[str, str]] = Field(default_factory=list)
+    authentication_strategy: str = ""
+    user_journeys: List[str] = Field(default_factory=list)
+    user_flows: List[str] = Field(default_factory=list)
+    inputs: List[str] = Field(default_factory=list)
+    outputs: List[str] = Field(default_factory=list)
+    styling_guidance: List[str] = Field(default_factory=list)
     scalability_notes: str = ""
     performance_notes: str = ""
     technology_stack: List[str] = Field(default_factory=list)
